@@ -1,13 +1,15 @@
 #include "st7789.h"
 
-
 void app_main(void) {
     INIT();
-    vTaskDelay(10);
-    backlight(255/3);
-    vTaskDelay(10);
-    uint16_t makima = rgb888_to_rgb565(210, 132, 120);
-    //fill_screen(makima);
-    fill_screen(makima);
-    vTaskDelay(10);
+    vTaskDelay(pdMS_TO_TICKS(10)); // Espera para estabilizar
+
+    backlight(255);  // Sube el brillo al máximo
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    // Dibuja un píxel visible
+    draw_pixel(100, 100, rgb888_to_rgb565(255, 0, 0)); // Rojo
+
+    // Rellena la pantalla con un color visible
+    draw_rectangle(0, 0, TFT_WIDTH - 1, TFT_HEIGHT - 1, rgb888_to_rgb565(210, 132, 112));
 }

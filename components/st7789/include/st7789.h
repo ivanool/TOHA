@@ -65,17 +65,14 @@
 
 void RESET();
 void spi_init();
-void send_data8(uint8_t data);
-void send_data16(uint16_t data);
+void send_data(const uint8_t* data, size_t size);
+void send_word(uint16_t data);
 void send_cmd(uint8_t cmd);
 void INIT();
 void backlight(uint8_t duty);
 void porch_control(uint8_t bpa, uint8_t fpa, bool psen, uint8_t bpb, uint8_t fpb, uint8_t bpc, uint8_t fpc);
 void set_window(uint16_t x1, uint16_t x2, uint16_t y1, uint16_t y2);
-void clear_screen_slow(uint16_t color, uint32_t window_size);
 uint16_t rgb888_to_rgb565(uint8_t r, uint8_t g, uint8_t b);
-void draw_row(uint16_t y, uint16_t *pixels);
-void draw_pixel(uint16_t x1, uint16_t y, uint16_t color);
-void clear_screen(uint16_t color);
-void fill_screen(uint16_t color);
-void makima();
+void draw_pixel(uint16_t x, uint16_t y, uint16_t color);
+void draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void send_color(uint16_t * color, uint16_t size);
