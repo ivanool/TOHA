@@ -3,6 +3,7 @@
 spi_device_handle_t spi;
 
 
+
 void send_cmd(uint8_t cmd) {
     gpio_set_level(TFT_DC, CMD_MODE);
     spi_transaction_t t = {
@@ -76,7 +77,6 @@ void backlight(uint8_t duty) {
 }
 
 void porch_control() {
-    
     send_cmd(PORCTRL);
     uint8_t porch_data[] = {
         0x0C,   // VBP: 12 (0x0C)
@@ -117,13 +117,11 @@ void INIT() {
     vTaskDelay(pdMS_TO_TICKS(120));
 
     send_cmd(COLMOD);
-    uint8_t colmod_data = 0x55;
-    send_data(&colmod_data, 1);
+    send_data(COLOR_65K, 1);
 
-    set_orientation(0x00); 
+    set_orientation(0xA0); 
     
-    porch_control(); 
-    
+    porch_control();     
     send_cmd(GCTRL);
     uint8_t gctrl_data = 0x75; 
     send_data(&gctrl_data, 1);
@@ -131,9 +129,9 @@ void INIT() {
     send_cmd(VCOMS);
     uint8_t vcoms_data = 0x2B; 
     send_data(&vcoms_data, 1);
-     
+    
     vTaskDelay(pdMS_TO_TICKS(10));
-    send_cmd(INVON);
+    
     send_cmd(NORON);
     send_cmd(DISPON);
     vTaskDelay(pdMS_TO_TICKS(150));
@@ -194,17 +192,13 @@ void draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t
     uint16_t width = x2 - x1 + 1;
     uint16_t height = y2 - y1 + 1;
     uint32_t total_pixels = width * height;
+    
+    uint16_t buffer[512];
+    for(int i = 0; i < 512; i++) buffer[i] = color;
 
-    uint16_t color_buffer[512];
-    const uint16_t chunk_size = sizeof(color_buffer)/sizeof(uint16_t);
-
-    for (int i = 0; i < chunk_size; i++) {
-        color_buffer[i] = color;
-    }
-
-    while (total_pixels > 0) {
-        uint16_t current_chunk = (total_pixels > chunk_size) ? chunk_size : total_pixels;
-        send_color(color_buffer, current_chunk);
-        total_pixels -= current_chunk;
+    while(total_pixels > 0) {
+        uint32_t chunk = (total_pixels > 512) ? 512 : total_pixels;
+        send_data((uint8_t*)buffer, chunk * 2);
+        total_pixels -= chunk;
     }
 }

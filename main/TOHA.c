@@ -8,8 +8,10 @@ void app_main(void) {
     vTaskDelay(pdMS_TO_TICKS(10));
 
     // Dibuja un píxel visible
-    draw_pixel(100, 100, rgb888_to_rgb565(255, 0, 0)); // Rojo
+    draw_pixel(100, 100, rgb888_to_rgb565(208, 0, 0)); // Rojo
 
     // Rellena la pantalla con un color visible
-    draw_rectangle(0, 0, TFT_WIDTH - 1, TFT_HEIGHT - 1, rgb888_to_rgb565(210, 132, 112));
+    draw_rectangle(0, 0, TFT_WIDTH - 1, TFT_HEIGHT - 1, rgb888_to_rgb565(207, 130, 122));
+    vTaskDelay(10);
+    draw_rectangle(0,0,100, 100, rgb888_to_rgb565(100, 100, 100));
 }
