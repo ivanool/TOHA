@@ -1,8 +1,15 @@
 #include "st7789.h"
 
 spi_device_handle_t spi;
-
-
+/**
+ * @brief Send a command to the ST7789 display.
+ *
+ * This function sends an 8-bit command to the ST7789 display controller.
+ * It sets the data/command pin to command mode and transmits the command
+ * via SPI.
+ *
+ * @param cmd The 8-bit command to send to the display.
+ */
 void send_cmd(uint8_t cmd) {
     gpio_set_level(TFT_DC, CMD_MODE);
     spi_transaction_t t = {
@@ -12,6 +19,16 @@ void send_cmd(uint8_t cmd) {
     ESP_ERROR_CHECK(spi_device_transmit(spi, &t));
 }
 
+/**
+ * @brief Send data to the ST7789 display.
+ *
+ * This function sends a block of data to the ST7789 display controller.
+ * It sets the data/command pin to data mode and transmits the data
+ * via SPI.
+ *
+ * @param data Pointer to the data to send to the display.
+ * @param size Size of the data block in bytes.
+ */
 void send_data(const uint8_t* data, size_t size) {
     spi_transaction_t SPIT;
     gpio_set_level(TFT_DC, DATA_MODE);
@@ -21,13 +38,36 @@ void send_data(const uint8_t* data, size_t size) {
     ESP_ERROR_CHECK(spi_device_polling_transmit(spi, &SPIT));
 }
 
-void send_word(uint16_t data){
+/**
+ * @brief Send a 16-bit word to the ST7789 display.
+ *
+ * This function sends a 16-bit word to the ST7789 display controller.
+ * It sets the data/command pin to data mode and transmits the word
+ * via SPI.
+ *
+ * @param data The 16-bit word to send to the display.
+ */
+void send_word(uint16_t data) {
+    uint8_t data_array[2] = { data >> 8, data & 0xFF };
+    gpio_set_level(TFT_DC, DATA_MODE);
+    spi_transaction_t t = {
+        .length = 16,
+        .tx_buffer = data_array
+    };
+    ESP_ERROR_CHECK(spi_device_transmit(spi, &t));
+}
     uint8_t buffer[2] = {data >> 8, data & 0xFF};
     send_data(buffer, 2);
 }
 
 
 
+/**
+ * @brief Initialize GPIO pins for the ST7789 display.
+ *
+ * This function configures the GPIO pins used to control the ST7789 display.
+ * It sets the data/command, reset, and backlight pins to output mode.
+ */
 void gpio_init() {
     gpio_config_t io_conf = {
         .pin_bit_mask = (1ULL << TFT_DC) | (1ULL << TFT_RST) | (1ULL << TFT_BL),
@@ -39,15 +79,29 @@ void gpio_init() {
     gpio_config(&io_conf);
 }
 
-void RESET(){
+/**
+ * @brief Reset the ST7789 display.
+ *
+ * This function performs a hardware reset on the ST7789 display controller.
+ * It pulls the reset pin low, waits for 20 milliseconds, then pulls it high.
+ * After that, it sends the software reset command and waits for 150 milliseconds.
+ */
+void RESET() {
     gpio_set_level(TFT_RST, 0);
     vTaskDelay(pdMS_TO_TICKS(20));
     gpio_set_level(TFT_RST, 1);
     send_cmd(SWRESET);
-
     vTaskDelay(pdMS_TO_TICKS(150));
 }
 
+/**
+ * @brief Set the backlight brightness.
+ *
+ * This function configures the LEDC timer and channel to control the
+ * backlight brightness of the ST7789 display.
+ *
+ * @param duty The duty cycle for the backlight brightness (0-255).
+ */
 void backlight(uint8_t duty) {
 
     ledc_timer_config_t ledc_timer = {
@@ -75,6 +129,12 @@ void backlight(uint8_t duty) {
 
 }
 
+/**
+ * @brief Configure the porch settings of the ST7789 display.
+ *
+ * This function sends the porch control command and data to the ST7789
+ * display controller to configure the vertical and horizontal porch settings.
+ */
 void porch_control() {
     
     send_cmd(PORCTRL);
@@ -87,12 +147,31 @@ void porch_control() {
     };
     send_data(porch_data, sizeof(porch_data));
 }
-
+/**
+ * @brief Set the display orientation.
+ *
+ * This function sends the memory data access control (MADCTL) command
+ * to the ST7789 display controller to set the display orientation.
+ *
+ * @param data The orientation data to send to the display.
+ */
 void set_orientation(uint8_t data) {
     send_cmd(MADCTL);
     send_data(&data, 1);
 }
 
+/**
+ * @brief Set the display window.
+ *
+ * This function sets the column and row address window for the ST7789 display.
+ * It sends the column address set (CASET) and row address set (RASET) commands
+ * along with the start and end addresses.
+ *
+ * @param x0 The starting column address.
+ * @param x1 The ending column address.
+ * @param y0 The starting row address.
+ * @param y1 The ending row address.
+ */
 void set_window(uint16_t x0, uint16_t x1, uint16_t y0, uint16_t y1) {
     x0 = (x0 >= TFT_WIDTH) ? TFT_WIDTH - 1 : x0;
     x1 = (x1 >= TFT_WIDTH) ? TFT_WIDTH - 1 : x1;
@@ -108,6 +187,13 @@ void set_window(uint16_t x0, uint16_t x1, uint16_t y0, uint16_t y1) {
     send_word(y1 + Y_OFFSET);
 }
 
+/**
+ * @brief Initialize the ST7789 display.
+ *
+ * This function initializes the ST7789 display by configuring the SPI interface,
+ * initializing the GPIO pins, performing a hardware reset, and sending the
+ * necessary commands to set up the display.
+ */
 void INIT() {
     spi_init();
     gpio_init();
@@ -140,7 +226,12 @@ void INIT() {
     
     backlight(128); 
 }
-
+/**
+ * @brief Initialize the SPI interface for the ST7789 display.
+ *
+ * This function configures and initializes the SPI bus and device interface
+ * for communication with the ST7789 display controller.
+ */
 void spi_init() {
     spi_bus_config_t buscfg = {
         .mosi_io_num = TFT_MOSI,
@@ -163,13 +254,28 @@ void spi_init() {
     ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST, &devcfg, &spi));
 }
 
-
-
+/**
+ * @brief Convert RGB888 color to RGB565 color format.
+ *
+ * This function converts a color from 24-bit RGB888 format to 16-bit RGB565 format.
+ *
+ * @param r The red component (8-bit).
+ * @param g The green component (8-bit).
+ * @param b The blue component (8-bit).
+ * @return The color in 16-bit RGB565 format.
+ */
 uint16_t rgb888_to_rgb565(uint8_t r, uint8_t g, uint8_t b) {
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 }
 
-
+/**
+ * @brief Send color data to the ST7789 display.
+ *
+ * This function sends an array of 16-bit color values to the ST7789 display.
+ *
+ * @param color Pointer to the array of 16-bit color values.
+ * @param size The number of color values in the array.
+ */
 void send_color(uint16_t * color, uint16_t size){
     static uint8_t byte[1024];
     int index = 0;
@@ -180,13 +286,34 @@ void send_color(uint16_t * color, uint16_t size){
     send_data(byte, size*2);
 }
 
+/**
+ * @brief Draw a pixel on the ST7789 display.
+ *
+ * This function sets the address window to a single pixel and sends the color
+ * data to draw the pixel at the specified coordinates.
+ *
+ * @param x The x-coordinate of the pixel.
+ * @param y The y-coordinate of the pixel.
+ * @param color The 16-bit color value of the pixel.
+ */
 void draw_pixel(uint16_t x, uint16_t y, uint16_t color){
     set_window(x, x, y, y);
     send_cmd(RAMWR);
     send_color(&color, 1);
 }
 
-
+/**
+ * @brief Draw a filled rectangle on the ST7789 display.
+ *
+ * This function sets the address window to the specified rectangle and sends
+ * the color data to fill the rectangle with the specified color.
+ *
+ * @param x1 The starting x-coordinate of the rectangle.
+ * @param y1 The starting y-coordinate of the rectangle.
+ * @param x2 The ending x-coordinate of the rectangle.
+ * @param y2 The ending y-coordinate of the rectangle.
+ * @param color The 16-bit color value to fill the rectangle.
+ */
 void draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
     set_window(x1, x2, y1, y2);
     send_cmd(RAMWR);

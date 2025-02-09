@@ -371,6 +371,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# TOHA
+#
+CONFIG_WIDTH=240
+CONFIG_HEIGHT=135
+# end of TOHA
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEBUG=y

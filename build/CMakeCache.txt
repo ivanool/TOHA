@@ -594,6 +594,8 @@ _Python3_EXECUTABLE:INTERNAL=/home/ivanool/.espressif/python_env/idf5.2_py3.12_e
 //Python3 Properties
 _Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;4;32;;;/home/ivanool/anaconda3/lib/python3.12;/home/ivanool/anaconda3/lib/python3.12;/home/ivanool/.espressif/python_env/idf5.2_py3.12_env/lib/python3.12/site-packages;/home/ivanool/.espressif/python_env/idf5.2_py3.12_env/lib/python3.12/site-packages
 _Python3_INTERPRETER_SIGNATURE:INTERNAL=e5e7b9bbceec3e817ad5fd201d45de91
+//Interpreter reason failure
+_Python3_Interpreter_REASON_FAILURE:INTERNAL=
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 

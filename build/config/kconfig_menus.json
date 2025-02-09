@@ -4721,6 +4721,40 @@
     {
         "children": [
             {
+                "children": [],
+                "depends_on": null,
+                "help": "The width resolution of the screen.",
+                "id": "WIDTH",
+                "name": "WIDTH",
+                "range": [
+                    0,
+                    999
+                ],
+                "title": "SCREEN WIDTH",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "The height resolution of the screen.",
+                "id": "HEIGHT",
+                "name": "HEIGHT",
+                "range": [
+                    0,
+                    999
+                ],
+                "title": "SCREEN HEIGHT",
+                "type": "int"
+            }
+        ],
+        "depends_on": null,
+        "id": "toha",
+        "title": "TOHA",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
                 "children": [
                     {
                         "children": [],

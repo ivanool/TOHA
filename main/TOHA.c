@@ -13,5 +13,7 @@ void app_main(void) {
     // Rellena la pantalla con un color visible
     draw_rectangle(0, 0, TFT_WIDTH - 1, TFT_HEIGHT - 1, rgb888_to_rgb565(207, 130, 122));
     vTaskDelay(10);
+    //test
+    
     draw_rectangle(0,0,100, 100, rgb888_to_rgb565(100, 100, 100));
 }
